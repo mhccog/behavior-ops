@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Read & Connect — Hughes field guide</title>
+<meta name="description" content="Profile someone, read body language and talk to them their way — a field guide based on Chase Hughes' Behavior Ops Manual.">
+<meta name="theme-color" content="#0b0d12">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">◎</span><div><h1>Read &amp; Connect</h1><small>Field guide · based on Chase Hughes</small></div></div>
+  <button class="icon-btn" id="infoBtn" aria-label="About">i</button>
+</header>
+
+<main>
+  <!-- PROFILE -->
+  <section id="tab-profile" class="tab active">
+    <div class="drill" id="drill"></div>
+    <div class="howto">
+      <b>Six-minute read</b>
+      <ol><li>Baseline them on easy small talk.</li><li>Tap what you notice below.</li><li>Use the card to talk their way.</li></ol>
+      <p class="caveat">One gesture ≠ one meaning. Look for <b>changes</b>, <b>clusters</b>, and <b>what was just said</b>.</p>
+    </div>
+    <div id="groups"></div>
+    <div class="spacer"></div>
+  </section>
+
+  <!-- CUES -->
+  <section id="tab-cues" class="tab">
+    <div class="search"><input id="cueSearch" type="search" placeholder="Search cues… e.g. lips, feet, pause"></div>
+    <div class="regions" id="regions"></div>
+    <p class="caveat">Baseline first · clusters of 3+ · context. Stress ≠ lying. Culture, cold rooms and your own pressure all change behaviour.</p>
+    <div id="cueList"></div>
+  </section>
+
+  <!-- TALK -->
+  <section id="tab-talk" class="tab">
+    <h2 class="sec">By goal</h2>
+    <div id="goalList"></div>
+    <h2 class="sec">By need</h2>
+    <div id="needList"></div>
+    <h2 class="sec">By decision style</h2>
+    <div id="decList"></div>
+    <h2 class="sec">By life value</h2>
+    <div id="valList"></div>
+    <h2 class="sec">Conflict styles</h2>
+    <div id="animalList"></div>
+  </section>
+
+  <!-- PEOPLE -->
+  <section id="tab-people" class="tab">
+    <div class="row-between"><h2 class="sec">People</h2><button class="ghost" id="newProfile">+ New</button></div>
+    <div id="peopleList"></div>
+    <div class="backup">
+      <button class="ghost" id="exportBtn">Export backup</button>
+      <label class="ghost file">Import<input type="file" id="importFile" accept="application/json"></label>
+    </div>
+    <p class="caveat">Saved only on this device (no server). Export a backup now and then.</p>
+  </section>
+</main>
+
+<!-- live profile card (sticky) -->
+<div id="card" class="card collapsed" aria-live="polite">
+  <button id="cardToggle" class="card-head">
+    <span id="cardSummary">Tap what you notice — your read builds here</span>
+    <span class="chev">▲</span>
+  </button>
+  <div class="card-body" id="cardBody"></div>
+</div>
+
+<nav class="tabs">
+  <button data-tab="profile" class="active"><span>◎</span>Profile</button>
+  <button data-tab="cues"><span>👁</span>Body</button>
+  <button data-tab="talk"><span>💬</span>Talk</button>
+  <button data-tab="people"><span>👥</span>People</button>
+</nav>
+
+<dialog id="dlg"><div id="dlgBody"></div><form method="dialog"><button class="primary">Close</button></form></dialog>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
