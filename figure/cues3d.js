@@ -52,7 +52,7 @@
   add('Nostril flare', { cam: { f: 'face', az: 8, el: -4, d: 0.55 }, hl: ['nostrils'], steps: [{ p: { f: { nf: 1, bd: 0.2 } }, in: 0.35, hold: 2.2, osc: [], label: 'Nostrils widen' }] });
   add('Jaw clench', { cam: { f: 'face', az: 40, d: 0.75 }, hl: ['jaw'], steps: [{ p: { f: { jc: 1, pr: 0.6, bd: 0.45 } }, in: 0.4, hold: 2.4, label: 'Jaw muscles bunch up' }] });
   add('Hushing (mouth cover, cough, nose scratch)', { cam: { f: 'head', az: 20 }, hl: ['handR'],
-    steps: [{ p: { ikR: { to: 'head', p: [-0.012, 0.055, 0.112], fd: [0.75, 0.5, 0.25], pn: [0, 0, -1], pole: [-1, -1, -0.1] }, fg: { R: { c: 0.35, t: 0.2 } }, j: { head: [6, 0, 0] } }, in: 0.6, hold: 2, label: 'Hand covers the mouth' }] });
+    steps: [{ p: { ikR: { to: 'head', p: [-0.01, 0.04, 0.115], fd: [0.95, 0.15, 0.2], pn: [0, 0, -1], pole: [-1, -1, -0.1] }, fg: { R: { c: 0.35, t: 0.2 } }, j: { head: [6, 0, 0] } }, in: 0.6, hold: 2, label: 'Hand covers the mouth' }] });
   add('Flushing', { cam: { f: 'face', az: 12 }, hl: [], steps: [{ p: { f: { fl: 1, gy: -10, sm: 0.15 }, j: { head: [8, -6, 0] } }, in: 1.5, hold: 2.2, label: 'Face reddens' }] });
   add('Head tilt', { cam: { f: 'head', az: 10, d: 1.3 }, hl: ['head'], steps: [{ p: { j: { head: [0, 0, 16], neck: [0, 0, 4] }, f: { sm: 0.35, bu: 0.15 } }, in: 0.7, hold: 2.2, label: 'Head tilts to one side' }] });
   add('Chin thrust', { cam: { f: 'head', az: 50, d: 1.4 }, hl: ['head'], steps: [{ p: { j: { neck: [-12, 0, 0], head: [-14, 0, 0], chest: [-3, 0, 0] }, f: { bd: 0.5, pr: 0.4 } }, in: 0.5, hold: 2.2, label: 'Chin juts up and out' }] });
@@ -60,7 +60,6 @@
   /* ---------------- NECK & SHOULDERS ---------------- */
   add('Throat touch', { cam: { f: 'head', az: 25 }, hl: ['handR', 'throat'],
     steps: [{ p: { ikR: { to: 'neck', p: [-0.01, -0.035, 0.075], fd: [0.3, 1, 0.1], pn: [0, 0, -1], pole: [-1, -1, -0.2] }, fg: { R: { c: [0.3, 0.35, 0.5, 0.6], s: 0.3 } }, f: { bi: 0.4 } }, in: 0.7, hold: 2.2, label: 'Hand goes to the throat' }] });
-  add('Throat rises / hard swallow', { cam: { f: 'head', az: 55, el: 0, d: 0.75 }, hl: ['throat'], steps: [{ p: { f: { sw: 1, pr: 0.3 }, j: { head: [5, 0, 0] } }, in: 0.35, hold: 0.5, label: 'Hard swallow' }], ret: 0.6, lead: 1.4 });
   const shrugArms = { ...palmsUp };
   add('Both shoulders shrug', { cam: { f: 'upper', az: 12, d: 2.1 }, hl: ['shoulders'], steps: [{ p: { j: J(sym('clav', 0, 0, 15), { head: [0, 0, 6] }), ...shrugArms, fg: { L: { c: 0.1, s: 0.5 }, R: { c: 0.1, s: 0.5 } }, f: { bu: 0.6, fr: 0.5, pr: 0.3 } }, in: 0.45, hold: 1.3, label: 'Both shoulders up, palms up' }] });
   add('Single-shoulder shrug', { cam: { f: 'upper', az: 12, d: 2.1 }, hl: ['shoulderR'], steps: [{ p: { j: { clavR: [0, 0, -17], head: [0, 0, -4] }, f: { fr: 0.3, buR: 0.3 } }, in: 0.35, hold: 1.2, label: 'Just one shoulder lifts' }] });
@@ -84,7 +83,7 @@
   add('Hand to chest', { cam: { f: 'upper', az: 20, d: 2.1 }, hl: ['handR'], steps: [{ p: { ikR: { to: 'chest', p: [0.04, 0.13, 0.1], fd: [0.55, 0.75, 0.1], pn: [0, 0, -1], pole: [-1, -1, -0.1] }, fg: { R: { c: 0.08, s: 0.3 } }, f: { bi: 0.45, sm: 0.1 }, j: { head: [4, 0, 4] } }, in: 0.7, hold: 2.2, label: 'Hand flat over the heart' }] });
   add('Fig leaf / single-arm wrap', { cam: { f: 'body', az: 18, d: 3 }, hl: ['hands', 'arms'], steps: [
     { p: { ikL: { to: 'hips', p: [0.0, -0.1, 0.14], fd: [-0.4, -1, 0], pn: [0, 0, -1], pole: [1, -1, -0.2] }, ikR: { to: 'hips', p: [0.01, -0.12, 0.16], fd: [0.4, -1, 0], pn: [0, 0, -1], pole: [-1, -1, -0.2] }, fg: { L: { c: 0.3 }, R: { c: 0.3 } }, f: { bi: 0.3 } }, in: 0.8, hold: 1.8, label: 'Fig leaf: hands guard the front' },
-    { p: { ikL: null, ikR: { to: 'chest', p: [0.2, -0.04, 0.05], fd: [0.2, -0.8, -0.6], pn: [-1, 0, -0.3], pole: [-1, -1, 0.2] }, j: { armL: [0, 0, 3] }, fg: { R: { c: 0.3 }, L: { c: 0.25 } }, f: { bi: 0.4 } }, in: 0.8, hold: 1.8, label: 'Single-arm wrap: one arm across the body' }] });
+    { p: { ikL: null, ikR: { to: 'chest', p: [0.2, 0.0, 0.13], fd: [0.2, -0.7, -0.6], pn: [-1, 0, 0.3], pole: [-0.4, -1, 1] }, j: { armL: [0, 0, 3] }, fg: { R: { c: 0.3 }, L: { c: 0.25 } }, f: { bi: 0.4 } }, in: 0.8, hold: 1.8, label: 'Single-arm wrap: one arm across the body' }] });
   add('Elbows pull in', { cam: { f: 'upper', az: 25, d: 2.3 }, hl: ['arms'], p0: { ...both({ to: 'chest', p: [0.26, -0.1, 0.3], fd: [0.3, 0.1, 1], pn: [-0.6, 0.6, 0], pole: [1, -0.5, -0.2] }) }, baseLabel: 'Relaxed, gesturing', steps: [{ p: { ...both({ to: 'chest', p: [0.1, -0.08, 0.27], fd: [-0.1, 0.1, 1], pn: [-0.8, 0.4, 0], pole: [0.1, -1, -0.4] }), j: J(sym('clav', 0, 8, 6)), fg: { L: { c: 0.5 }, R: { c: 0.5 } }, f: { bi: 0.4, pr: 0.3 } }, in: 0.5, hold: 2.2, label: 'Elbows clamp to the ribs' }] });
   add('Fidgeting / tapping', { base: 'sit', cam: { f: 'body', az: 30, el: 20, d: 2.6 }, hl: ['fingersR', 'thighL', 'fingers'], steps: [{ p: { fg: { R: { c: 0.1, s: 0.3 } } }, in: 0.4, hold: 3.5, osc: [['fR0_0', 'x', 22, 4, 0], ['fR1_0', 'x', 22, 4, 0.8], ['fR2_0', 'x', 22, 4, 1.6], ['fR3_0', 'x', 22, 4, 2.4], ['footL', 'x', 12, 3.2]], label: 'Fingers drum, a foot taps' }] });
   add('Jewellery or cuff play', { props: ['watch'], cam: { f: 'hands', az: 25, el: 15, d: 1.4 }, hl: ['handR'], steps: [{ p: { ikL: { to: 'chest', p: [0.0, -0.06, 0.27], fd: [-0.6, -0.2, 0.7], pn: [0, 1, -0.1], pole: [1, -1, 0] }, ikR: { to: 'chest', p: [0.04, -0.04, 0.27], fd: [0.6, -0.2, 0.6], pn: [0.4, -1, 0], pole: [-1, -1, 0] }, fg: { R: { c: 0.55, t: 0.6 } }, f: { gy: -20 }, j: { head: [14, 0, 0] } }, in: 0.8, hold: 3, osc: [['wristR', 'y', 14, 1.4]], label: 'Twists the watch strap' }] });
@@ -122,10 +121,9 @@
   /* ---------------- OBJECTS ---------------- */
   add('Checks wallet/phone/bag is there', { props: ['wallet'], cam: { f: 'body', az: 150, el: 10, d: 3 }, hl: ['handR'], steps: [{ p: { ikR: { to: 'hips', p: [-0.085, -0.06, -0.115], fd: [0, -1, -0.1], pn: [0, 0, 1], pole: [-1, -0.3, -0.6] }, fg: { R: { c: 0.15 } }, j: { head: [10, -20, 0] }, f: { gy: -10 } }, in: 0.7, hold: 1.8, osc: [['wristR', 'x', 12, 3]], label: 'Pats the back pocket' }] });
   add('Tilts phone screen away', { base: 'sit', props: ['phone'], cam: { f: 'hands', az: 10, el: 30, d: 1.15 }, hl: ['handR'], p0: { ikR: { to: 'chest', p: [-0.02, -0.12, 0.3], fd: [0.3, 0.15, 1], pn: [0, 1, 0.1], pole: [-1, -1, 0] }, fg: { R: { c: 0.5, t: 0.3 } }, j: { head: [18, 0, 0] }, f: { gy: -20 } }, baseLabel: 'Screen visible', steps: [{ p: { ikR: { to: 'chest', p: [-0.03, -0.06, 0.24], fd: [0.3, 0.8, 0.3], pn: [0.1, 0.3, -1], pole: [-1, -1, 0] }, f: { gy: -12 } }, in: 0.4, hold: 2.2, label: 'Screen tilts toward themself' }] });
-  add('Buttons jacket mid-chat', { props: ['jacket'], cam: { f: 'upper', az: 18, d: 2.0 }, hl: ['hands'], steps: [
-    { p: { ...both({ to: 'spine', p: [0.02, 0.03, 0.14], fd: [-0.5, -0.2, 0.8], pn: [0, 0, -1], pole: [1, -1, -0.3] }), fg: { L: { c: 0.6, t: 0.8 }, R: { c: 0.6, t: 0.8 } }, f: { jk: 0.5, gy: -15 }, j: { head: [16, 0, 0] } }, in: 0.7, hold: 0.6, label: 'Hands go to the button' },
-    { p: { f: { jk: 1, gy: -15, pr: 0.3 } }, in: 0.7, hold: 1.6, label: 'Jacket closed: trust paused' }] });
   add('Watch check', { props: ['watch'], cam: { f: 'upper', az: 30, d: 2.0 }, hl: ['handL'], steps: [{ p: { ikL: { to: 'chest', p: [-0.02, 0.0, 0.3], fd: [-0.7, -0.1, 0.4], pn: [0, -1, 0], pole: [1, -1, 0] }, fg: { L: { c: 0.35 } }, j: { head: [26, 14, 0], neck: [8, 0, 0] }, f: { gy: -25, gx: 6 } }, in: 0.6, hold: 1.4, label: 'Glances at the watch' }] });
 
+  // Not animated with the realistic model (the jacket prop clips through his jumper and the model has no throat shape key):
+  // 'Throat rises / hard swallow', 'Buttons jacket mid-chat'.
   window.BO3D = { bases, cues: C, key };
 })();

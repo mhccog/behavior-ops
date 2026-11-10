@@ -1,8 +1,9 @@
 // Read & Connect: 3D cue viewer.
-// A procedural mannequin built from simple shapes (no external model, so no licence issues).
+// An invisible procedural skeleton is posed from keyframes; person.js copies it onto a realistic Rocketbox model (MIT, see CREDITS.md).
 // Poses live in figure/cues3d.js (cue key -> keyframed pose spec). Loaded only when a figure is opened.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { loadPerson, Person, ghostCopy } from './person.js';
 
 const D = Math.PI / 180;
 const V = () => new THREE.Vector3();
@@ -26,7 +27,7 @@ function cap(r, len, mat) { const g = new THREE.CapsuleGeometry(r, Math.max(0.00
 // ---------- the figure ----------
 class Figure {
   constructor(opts = {}) {
-    this.ghost = !!opts.ghost;
+    this.ghost = !!opts.ghost; this.UA = UA; this.FA = FA;
     this.mats = [];
     this.parts = {}; // highlight groups -> meshes
     this.b = {};
@@ -222,10 +223,12 @@ class Figure {
     const S = ua.getWorldPosition(V());
     let fd = null, pn = null;
     if (t.fd) { fd = V().set(...t.fd).normalize().applyQuaternion(frQ); pn = V().set(...(t.pn || [0, 0, 1])).applyQuaternion(frQ); pn.sub(fd.clone().multiplyScalar(pn.dot(fd))).normalize(); }
-    const T = ref.localToWorld(V().set(...t.p));
-    if (fd) T.addScaledVector(fd, -0.05).addScaledVector(pn, -0.017); // p is the palm contact point
+    const pp = V().set(...t.p), aj = this.adj?.[t.to || 'chest'];
+    if (aj) { pp.y += aj.y; pp.z += aj.z * Math.min(1, Math.max(-1, t.p[2] / 0.1)); } // front/back-surface targets move with the deeper body
+    const T = ref.localToWorld(pp);
+    if (fd) T.addScaledVector(fd, -(this.palmD || 0.05)).addScaledVector(pn, -0.017); // p is the palm contact point
     const pole = V().set(...(t.pole || [0.3 * (s === 'L' ? 1 : -1), -1, -0.5])).normalize().applyQuaternion(frQ);
-    const a = UA, bL = FA, dv = T.clone().sub(S); let d = dv.length(); const u = dv.normalize();
+    const a = this.UA, bL = this.FA, dv = T.clone().sub(S); let d = dv.length(); const u = dv.normalize();
     d = Math.min(Math.max(d, Math.abs(a - bL) + 1e-3), a + bL - 1e-3);
     const cosA = (a * a + d * d - bL * bL) / (2 * a * d), sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
     let perp = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u)));
@@ -314,7 +317,7 @@ function makeProps(fig) {
   phone.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.145, 0.009), M(0x111318)));
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.062, 0.132), new THREE.MeshStandardMaterial({ color: 0x9fc4ff, emissive: 0x5b8cff, emissiveIntensity: 1.2 }));
   scr.position.z = 0.0048; phone.add(scr);
-  phone.position.set(0, -0.075, 0.018); P.phone = { obj: phone, bone: 'wristR' };
+  phone.position.set(0, -0.08, 0.032); P.phone = { obj: phone, bone: 'wristR' };
   const pen = new THREE.Mesh(new THREE.CylinderGeometry(0.0045, 0.0045, 0.15, 10), M(0x2f74d0));
   const penG = new THREE.Group(); penG.add(pen); pen.rotation.x = Math.PI / 2; P.pen = { obj: penG, bone: null, pen };
   const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.036, 0.11, 18), M(0xe9e4da));
@@ -322,7 +325,7 @@ function makeProps(fig) {
   const watch = new THREE.Group();
   const band = new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.007, 8, 20), M(0x262a33)); band.rotation.x = Math.PI / 2; watch.add(band);
   const face = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.017, 0.008, 20), M(0xd8dce6)); face.rotation.x = Math.PI / 2; face.position.z = -0.038; watch.add(face);
-  watch.position.set(0, 0.03, 0); P.watch = { obj: watch, bone: 'wristL' };
+  watch.position.set(0, -0.004, 0); watch.scale.setScalar(1.3); P.watch = { obj: watch, bone: 'wristL' };
   const wallet = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.11, 0.02), M(0x5a3b25)); wallet.position.set(-0.085, -0.055, -0.093); P.wallet = { obj: wallet, bone: 'hips' };
   // jacket: two shells that rotate closed
   const jm = new THREE.MeshStandardMaterial({ color: COL.jacket, roughness: 0.75, side: THREE.DoubleSide });
@@ -335,7 +338,7 @@ function makeProps(fig) {
 }
 
 // ---------- viewer ----------
-export function mount(stage, hooks = {}) {
+export async function mount(stage, hooks = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: !!hooks.capture });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -361,14 +364,27 @@ export function mount(stage, hooks = {}) {
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.002; scene.add(ring);
 
   const fig = new Figure(); scene.add(fig.root);
+  // the procedural rig becomes an invisible driver; the realistic model copies its pose
+  const model = await loadPerson(new URL('./model/person.glb', import.meta.url).href);
+  fig.root.traverse(o => { if (o.isMesh) o.visible = false; });
+  const ghostSrc = ghostCopy(model, COL.ghost, 0.55);
+  const person = new Person(model, fig); scene.add(model);
   const props = makeProps(fig);
+  { // chair seat height to suit the model's leg length
+    const seatTop = person.shinL + person.ankleH - 0.06;
+    props.chair.scale.y = seatTop / 0.455;
+  }
   scene.add(props.chair, props.door);
   for (const k of ['phone', 'pen', 'cup', 'watch', 'wallet', 'jacket']) (props[k].bone ? fig.b[props[k].bone] : scene).add(props[k].obj);
   let extras = [];
 
   let A = null, timeline = [], T = 0, total = 1, playing = true, speed = 1, hlOn = true, cueSpec = null, last = performance.now(), raf = 0, F = { ...F0 };
   const blinkState = { phase: 0, t: -1 };
-  const BASES = (window.BO3D && window.BO3D.bases) || {};
+  const BASES = { ...((window.BO3D && window.BO3D.bases) || {}) };
+  if (BASES.sit) { // sit with thighs level on the seat, sized to the model
+    const hy = person.shinL + person.ankleH - fig.b.thighL.position.y - 0.0;
+    BASES.sit = { ...BASES.sit, hp: [0, hy + 0.005, 0] };
+  }
 
   function merge(a, b) {
     const o = { ...a, ...b, j: { ...(a.j || {}), ...(b.j || {}) }, f: { ...(a.f || {}), ...(b.f || {}) }, fg: { ...(a.fg || {}), ...(b.fg || {}) } };
@@ -424,9 +440,13 @@ export function mount(stage, hooks = {}) {
     extras.forEach(e => scene.remove(e.root)); extras = [];
     for (const x of spec.extras || []) {
       const e = new Figure({ ghost: true });
+      e.root.traverse(o => { if (o.isMesh) o.visible = false; });
+      const gp = new Person(ghostCopy(ghostSrc, COL.ghost, 0.55), e);
       const snap = e.resolve(merge(BASES[x.base || 'stand'] || {}, x.p || {}));
       e.apply(snap, snap, 1); e.root.position.set(...(x.pos || [1, 0, 0])); e.root.rotation.y = (x.ry || 0) * D;
-      scene.add(e.root); extras.push(e);
+      e.root.updateMatrixWorld(true); gp.face({ ...F0, _blink: 0 }); gp.sync();
+      gp.setHighlight([], 0);
+      scene.add(e.root, gp.root); extras.push(e, gp);
     }
     T = 0; resetView(spec, timeline[2]?.A || timeline[1].B);
   }
@@ -463,9 +483,7 @@ export function mount(stage, hooks = {}) {
     qT.setFromAxisAngle(ax.y, 1.6 * D * idle * Math.sin(now * 0.7 + 1)); fig.b.head.quaternion.multiply(qT);
     if (idle > 1.05) { qT.setFromAxisAngle(ax.x, 6 * D * (idle - 1) * Math.sin(now * 2.3)); fig.b.wristR.quaternion.multiply(qT); qT.setFromAxisAngle(ax.y, 5 * D * (idle - 1) * Math.sin(now * 1.7)); fig.b.head.quaternion.multiply(qT); }
     const bph = Math.sin(now * 2 * Math.PI * F.brate) * Math.min(1, idle + 0.15);
-    const cs = fig.chestM.userData.s, bs = fig.belly.userData.s;
-    fig.chestM.scale.set(cs.x * (1 + 0.025 * F.cb * bph), cs.y * (1 + 0.03 * F.cb * bph), cs.z * (1 + 0.08 * F.cb * bph));
-    fig.belly.scale.set(bs.x * (1 + 0.03 * F.bb * bph), bs.y, bs.z * (1 + 0.17 * F.bb * bph));
+    person.breathe(F.cb * bph, F.bb * bph);
     qT.setFromAxisAngle(ax.z, 2.2 * D * F.cb * bph); fig.b.clavL.quaternion.multiply(qT); qT.setFromAxisAngle(ax.z, -2.2 * D * F.cb * bph); fig.b.clavR.quaternion.multiply(qT);
     // blink
     const rate = F.br * Math.min(1, idle);
@@ -474,7 +492,7 @@ export function mount(stage, hooks = {}) {
     let bl = 0; if (blinkState.t >= 0) { blinkState.t += dt; const x = blinkState.t / 0.16; bl = x < 1 ? Math.sin(Math.PI * x) : 0; if (x >= 1) blinkState.t = -1; }
     F._blink = bl * (1 - Math.max(0, F.lid));
     fig.root.updateMatrixWorld(true);
-    fig.applyFace(F, now);
+    person.time = now; person.face(F); person.sync();
     // props
     const jk = props.jacket; jk.jl.rotation.y = 0.55 * (1 - F.jk); jk.jr.rotation.y = -0.55 * (1 - F.jk) - 0.06 * F.jk;
     jk.obj.position.set(0, 0.03, 0.003);
@@ -485,7 +503,7 @@ export function mount(stage, hooks = {}) {
       pg.position.copy(H).addScaledVector(dir, 0.05); pg.lookAt(pg.position.clone().add(dir)); }
     // highlight
     const hk = hlOn ? (0.12 + 0.09 * Math.sin(now * 5)) * (seg.b >= 0 || seg.a >= 0 ? 1 : 0.25) : 0;
-    fig.setHighlight(cueSpec.hl, hk);
+    person.setHighlight(cueSpec.hl, hk);
     if (hooks.onTick) hooks.onTick({ label: seg.label, note: seg.note, t, total, cue: seg.b >= 0 || seg.a >= 0 });
   }
   function resize() { const w = stage.clientWidth || 300, h = stage.clientHeight || 300; renderer.setSize(w, h, false); renderer.domElement.style.width = '100%'; renderer.domElement.style.height = '100%'; camera.aspect = w / h; camera.updateProjectionMatrix(); }
@@ -505,7 +523,7 @@ export function mount(stage, hooks = {}) {
       let acc = 0, best = 0; for (const s of timeline) { if (s.a >= 0 && s.a === s.b) best = acc + s.d * 0.6; acc += s.d; } return best;
     },
     stop, start,
-    canvas: renderer.domElement, _fig: fig,
+    canvas: renderer.domElement, _fig: fig, _person: person,
     dispose() { stop(); ro.disconnect(); renderer.dispose(); renderer.domElement.remove(); }
   };
 }

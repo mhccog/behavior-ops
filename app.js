@@ -169,9 +169,8 @@ function openFig(i){
   const pos=figList.indexOf(i);$('#figPrev').disabled=pos<=0;$('#figNext').disabled=pos<0||pos>=figList.length-1;
   const spec=F3.cues[F3.key(c.n)];
   if(!webglOK()){$('#figLoad').textContent='Sorry, this browser can’t show 3D graphics.';return}
-  if(!figLoading)figLoading=import('./figure/viewer.js').then(m=>{
-    figCtl=m.mount($('#figStage'),{onTick:s=>{const ph=$('#figPhase');ph.textContent=s.label;ph.classList.toggle('cue',s.cue);$('#figProg').style.width=(100*s.t/s.total).toFixed(1)+'%';const n=$('#figNote');if(n.dataset.v!==(s.note||'')){n.dataset.v=s.note||'';n.textContent=s.note||''}}});
-    $('#figLoad').remove();return figCtl});
+  if(!figLoading)figLoading=import('./figure/viewer.js').then(m=>m.mount($('#figStage'),{onTick:s=>{const ph=$('#figPhase');ph.textContent=s.label;ph.classList.toggle('cue',s.cue);$('#figProg').style.width=(100*s.t/s.total).toFixed(1)+'%';const n=$('#figNote');if(n.dataset.v!==(s.note||'')){n.dataset.v=s.note||'';n.textContent=s.note||''}}})).then(ctl=>{
+    figCtl=ctl;$('#figLoad').remove();return figCtl});
   figLoading.then(ctl=>{if(figIdx!==i)return;ctl.play(spec);$('#figPause').textContent='❚❚ Pause';ctl.setHighlight($('#figHl').classList.contains('on'));ctl.setSpeed($('#figSlow').classList.contains('on')?0.5:1)})
    .catch(err=>{console.warn(err);figLoading=null;const l=$('#figLoad');if(l)l.textContent='Couldn’t load the 3D figure. Check your connection and try again.'});
 }
