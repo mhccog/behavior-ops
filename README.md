@@ -6,10 +6,16 @@ This is a mobile-first pocket app for **profiling someone, reading their body la
 
 - **Profile:** tap what you notice: what they talk about, how they choose, what they want, their words and their body. A live card builds their **need**, **decision style**, **value**, **sensory preference** and **comfort/stress**. It then gives you lines to say, things to avoid, how to frame a request, and what their body is telling you.
 - **Body:** a searchable cue library sorted by body region, with a stress level and page references for each cue.
+  Most cues (71 of 90) have a **▶ Show me in 3D** button. It opens an animated 3D figure that starts at a neutral baseline, acts out the cue, holds it and goes back. You can turn and zoom it, replay it, slow it down, and step to the next cue. The "Voice & words" cues are about speech, so they have no figure.
 - **Talk:** step-by-step playbooks for rapport, opening up, persuading, calming someone, handling objections, getting the truth and handling a challenge. There are also cards for each need, decision style and value, and the conflict "animals".
 - **People:** saved profiles live in your browser's localStorage only, with export and import.
 
 Installable as a PWA and works offline.
+
+## How the 3D figures work
+- `figure/cues3d.js`: one entry per cue (pose, camera, highlighted body part, timing). It is small and loads with the page so the site knows which cues have a demo.
+- `figure/viewer.js`: builds the figure and plays the poses. It and three.js only download the first time someone opens a figure.
+- See [CREDITS.md](CREDITS.md) for licences.
 
 ## Credit & copyright
 All frameworks belong to **Chase Hughes**. Everything here is a paraphrased summary with page references (p.), so you can go back to the book. No text from the book is reproduced. Please buy the book.

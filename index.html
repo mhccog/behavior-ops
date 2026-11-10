@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="style.css">
+<!-- three.js is only fetched when a 3D figure is opened -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
 <body>
 <header class="top">
@@ -37,6 +39,7 @@
     <div class="search"><input id="cueSearch" type="search" placeholder="Search cues… e.g. lips, feet, pause"></div>
     <div class="regions" id="regions"></div>
     <p class="caveat">Baseline first · clusters of 3+ · context. Stress ≠ lying. Culture, cold rooms and your own pressure all change behaviour.</p>
+    <p class="hint3d">▶ <b>Show me in 3D</b> plays a figure acting out the cue. Turn it with a finger or mouse.</p>
     <div id="cueList"></div>
   </section>
 
@@ -85,6 +88,7 @@
 <dialog id="dlg"><div id="dlgBody"></div><form method="dialog"><button class="primary">Close</button></form></dialog>
 
 <script src="data.js"></script>
+<script src="figure/cues3d.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

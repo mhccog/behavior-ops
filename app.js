@@ -123,8 +123,54 @@ function renderCues(){
   const q=$('#cueSearch').value.toLowerCase().trim();
   const list=BO.cues.filter(c=>(region==='All'||c.r===region)&&(!q||(c.n+' '+c.m+' '+c.r).toLowerCase().includes(q)));
   $('#cueList').innerHTML=`<div class="legend">${lvl.map((l,i)=>`<span><i class="dot s${i}"></i>${l}${i?' stress':''}</span>`).join('')}</div>`+
-   (list.map(c=>`<div class="cue"><i class="dot s${c.s}"></i><div><b>${esc(c.n)}</b><div class="m">${esc(c.m)}</div><div class="ref">${esc(c.r)} · ${lvl[c.s]}${c.s?' stress':''}${c.drs?` · rated ${c.drs}/4 on the book's deception scale`:''} · p. ${esc(c.p)}</div></div></div>`).join('')||'<div class="empty">No cues match.</div>');
+   (list.map(c=>`<div class="cue"><i class="dot s${c.s}"></i><div><b>${esc(c.n)}</b><div class="m">${esc(c.m)}</div><div class="ref">${esc(c.r)} · ${lvl[c.s]}${c.s?' stress':''}${c.drs?` · rated ${c.drs}/4 on the book's deception scale`:''} · p. ${esc(c.p)}</div>${has3d(c)?`<button class="show3d" data-fig="${BO.cues.indexOf(c)}">▶ Show me in 3D</button>`:''}</div></div>`).join('')||'<div class="empty">No cues match.</div>');
+  figList=list.filter(has3d).map(c=>BO.cues.indexOf(c));
+  $$('[data-fig]').forEach(b=>b.onclick=()=>openFig(+b.dataset.fig));
 }
+
+/* ---------- 3D "Show me" figure (three.js + figure code load only when first opened) ---------- */
+const F3=window.BO3D;
+function has3d(c){return !!(F3&&F3.cues[F3.key(c.n)])}
+let figList=[],figIdx=-1,figCtl=null,figLoading=null;
+function figShell(){
+  let el=$('#fig');if(el)return el;
+  el=document.createElement('div');el.id='fig';el.className='fig';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','3D cue demo');
+  el.innerHTML=`<div class="fig-panel">
+   <div class="fig-top"><button class="icon-btn" id="figPrev" aria-label="Previous cue">‹</button><div class="fig-title"><b id="figName"></b><small id="figMeta"></small></div><button class="icon-btn" id="figNext" aria-label="Next cue">›</button><button class="icon-btn" id="figClose" aria-label="Close">✕</button></div>
+   <div class="fig-stage" id="figStage"><div class="fig-load" id="figLoad">Loading 3D figure…</div><div class="fig-phase" id="figPhase">Baseline</div><div class="fig-hint">Drag to turn · pinch or scroll to zoom</div></div>
+   <div class="fig-bar"><i id="figProg"></i></div>
+   <div class="fig-ctrl"><button id="figReplay">↺ Replay</button><button id="figPause">❚❚ Pause</button><button id="figSlow">½× speed</button><button id="figHl" class="on">✦ Highlight</button><button id="figView">Reset view</button></div>
+   <div class="fig-info"><div id="figMeaning"></div><div id="figNote" class="caveat"></div><p class="caveat">The figure starts at a neutral <b>baseline</b>, shows the cue, then returns. One cue is never proof: compare with their baseline, look for clusters of 3+, and consider context.</p></div></div>`;
+  document.body.appendChild(el);
+  $('#figClose').onclick=()=>closeFig();
+  $('#figPrev').onclick=()=>stepFig(-1);$('#figNext').onclick=()=>stepFig(1);
+  $('#figReplay').onclick=()=>figCtl&&figCtl.replay();
+  $('#figPause').onclick=e=>{if(!figCtl)return;const on=figCtl.toggle();e.currentTarget.textContent=on?'❚❚ Pause':'▶ Play'};
+  $('#figSlow').onclick=e=>{if(!figCtl)return;const b=e.currentTarget,slow=!b.classList.contains('on');b.classList.toggle('on',slow);figCtl.setSpeed(slow?0.5:1)};
+  $('#figHl').onclick=e=>{if(!figCtl)return;const b=e.currentTarget,on=!b.classList.contains('on');b.classList.toggle('on',on);figCtl.setHighlight(on)};
+  $('#figView').onclick=()=>figCtl&&figCtl.resetView();
+  document.addEventListener('keydown',e=>{if(!el.classList.contains('open'))return;if(e.key==='Escape')closeFig();else if(e.key==='ArrowRight')stepFig(1);else if(e.key==='ArrowLeft')stepFig(-1)});
+  window.addEventListener('popstate',()=>{if(el.classList.contains('open'))closeFig(true)});
+  return el;
+}
+function webglOK(){try{const c=document.createElement('canvas');return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl')))}catch(e){return false}}
+function openFig(i){
+  const el=figShell(),c=BO.cues[i];if(!c)return;
+  figIdx=i;
+  if(!el.classList.contains('open')){el.classList.add('open');document.body.classList.add('fig-open');history.pushState({fig:1},'')}
+  $('#figName').textContent=c.n;$('#figMeta').textContent=`${c.r} · ${lvl[c.s]}${c.s?' stress':''} · p. ${c.p}`;
+  $('#figMeaning').innerHTML=`<b>What it can mean:</b> ${esc(c.m)}`;
+  const pos=figList.indexOf(i);$('#figPrev').disabled=pos<=0;$('#figNext').disabled=pos<0||pos>=figList.length-1;
+  const spec=F3.cues[F3.key(c.n)];
+  if(!webglOK()){$('#figLoad').textContent='Sorry, this browser can’t show 3D graphics.';return}
+  if(!figLoading)figLoading=import('./figure/viewer.js').then(m=>{
+    figCtl=m.mount($('#figStage'),{onTick:s=>{const ph=$('#figPhase');ph.textContent=s.label;ph.classList.toggle('cue',s.cue);$('#figProg').style.width=(100*s.t/s.total).toFixed(1)+'%';const n=$('#figNote');if(n.dataset.v!==(s.note||'')){n.dataset.v=s.note||'';n.textContent=s.note||''}}});
+    $('#figLoad').remove();return figCtl});
+  figLoading.then(ctl=>{if(figIdx!==i)return;ctl.play(spec);$('#figPause').textContent='❚❚ Pause';ctl.setHighlight($('#figHl').classList.contains('on'));ctl.setSpeed($('#figSlow').classList.contains('on')?0.5:1)})
+   .catch(err=>{console.warn(err);figLoading=null;const l=$('#figLoad');if(l)l.textContent='Couldn’t load the 3D figure. Check your connection and try again.'});
+}
+function stepFig(d){const pos=figList.indexOf(figIdx)+d;if(pos>=0&&pos<figList.length)openFig(figList[pos])}
+function closeFig(fromPop){const el=$('#fig');if(!el||!el.classList.contains('open'))return;el.classList.remove('open');document.body.classList.remove('fig-open');figCtl&&figCtl.stop();if(!fromPop&&history.state&&history.state.fig)history.back()}
 $('#cueSearch').oninput=renderCues;
 
 /* ---------- talk ---------- */

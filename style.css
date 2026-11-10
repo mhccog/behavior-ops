@@ -69,3 +69,28 @@ dialog::backdrop{background:#000a}
 .spacer{height:20px}
 .toast{position:fixed;left:50%;bottom:220px;transform:translateX(-50%);background:#fff;color:#000;padding:8px 14px;border-radius:999px;font-weight:600;z-index:20;font-size:13px}
 @media(min-width:760px){body{padding-bottom:160px}}
+
+/* 3D figure */
+.hint3d{font-size:12.5px;color:var(--mute);margin:2px 2px 6px}.hint3d b{color:#cdb8ff}
+.cue .show3d{margin-top:8px;border:1px solid #3a3577;background:linear-gradient(135deg,#1b2246,#251b3f);color:#d6c6ff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.cue .show3d:active{transform:scale(.97)}
+body.fig-open{overflow:hidden}
+.fig{position:fixed;inset:0;z-index:30;display:none;background:var(--bg)}
+.fig.open{display:flex}
+.fig-panel{display:flex;flex-direction:column;width:100%;height:100%;background:var(--bg)}
+.fig-top{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;border-bottom:1px solid var(--line)}
+.fig-top .icon-btn{flex:none;font-size:17px;line-height:1;cursor:pointer}.fig-top .icon-btn:disabled{opacity:.35}
+.fig-title{flex:1;min-width:0;text-align:center}.fig-title b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15.5px}
+.fig-stage{position:relative;flex:1;min-height:220px;background:#0f1220;touch-action:none;overflow:hidden}
+.fig-stage canvas{display:block;position:absolute;inset:0;cursor:grab}
+.fig-load{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);font-size:14px;text-align:center;padding:20px}
+.fig-phase{position:absolute;left:12px;top:12px;z-index:2;pointer-events:none;background:#141822d9;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;max-width:calc(100% - 24px)}
+.fig-phase.cue{color:#0b0d12;background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent}
+.fig-hint{position:absolute;right:10px;bottom:8px;z-index:2;pointer-events:none;font-size:11px;color:#9aa3b8b0}
+.fig-bar{height:3px;background:var(--line)}.fig-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.fig-ctrl{display:flex;gap:6px;overflow-x:auto;padding:10px 12px 6px}
+.fig-ctrl button{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.fig-ctrl button.on{border-color:#4b4690;color:#d6c6ff;background:#1f1d3d}
+.fig-info{padding:2px 14px calc(12px + env(safe-area-inset-bottom));max-height:30vh;overflow:auto;font-size:14px}
+.fig-info .caveat{font-size:12.5px}
+@media(min-width:760px){.fig{background:#000b;align-items:center;justify-content:center}.fig-panel{width:min(980px,94vw);height:min(860px,92vh);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px #000a}}
