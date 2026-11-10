@@ -135,7 +135,7 @@ let figList=[],figIdx=-1,figCtl=null,figLoading=null;
 function figShell(){
   let el=$('#fig');if(el)return el;
   el=document.createElement('div');el.id='fig';el.className='fig';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','3D cue demo');
-  el.innerHTML=`<div class="fig-panel">
+  el.innerHTML=`<div class="fig-panel"><div class="fig-grab" aria-hidden="true"></div>
    <div class="fig-top"><button class="icon-btn" id="figPrev" aria-label="Previous cue">‹</button><div class="fig-title"><b id="figName"></b><small id="figMeta"></small></div><button class="icon-btn" id="figNext" aria-label="Next cue">›</button><button class="icon-btn" id="figClose" aria-label="Close">✕</button></div>
    <div class="fig-stage" id="figStage"><div class="fig-load" id="figLoad">Loading 3D figure…</div><div class="fig-phase" id="figPhase">Baseline</div><div class="fig-hint">Drag to turn · pinch or scroll to zoom</div></div>
    <div class="fig-bar"><i id="figProg"></i></div>
@@ -151,13 +151,19 @@ function figShell(){
   $('#figView').onclick=()=>figCtl&&figCtl.resetView();
   document.addEventListener('keydown',e=>{if(!el.classList.contains('open'))return;if(e.key==='Escape')closeFig();else if(e.key==='ArrowRight')stepFig(1);else if(e.key==='ArrowLeft')stepFig(-1)});
   window.addEventListener('popstate',()=>{if(el.classList.contains('open'))closeFig(true)});
+  el.addEventListener('click',e=>{if(e.target===el)closeFig()});
+  // swipe the sheet down by its header to dismiss (phone)
+  const top=el.querySelector('.fig-top'),pan=el.querySelector('.fig-panel');let y0=null;
+  top.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;pan.style.transition='none'},{passive:true});
+  top.addEventListener('touchmove',e=>{if(y0==null)return;const dy=Math.max(0,e.touches[0].clientY-y0);pan.style.transform=`translateY(${dy}px)`},{passive:true});
+  top.addEventListener('touchend',e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;y0=null;pan.style.transition='';pan.style.transform='';if(dy>90)closeFig()});
   return el;
 }
 function webglOK(){try{const c=document.createElement('canvas');return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl')))}catch(e){return false}}
 function openFig(i){
   const el=figShell(),c=BO.cues[i];if(!c)return;
   figIdx=i;
-  if(!el.classList.contains('open')){el.classList.add('open');document.body.classList.add('fig-open');history.pushState({fig:1},'')}
+  if(!el.classList.contains('open')){clearTimeout(figHide);el.classList.add('open');document.body.classList.add('fig-open');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('shown')));history.pushState({fig:1},'');figCtl&&figCtl.start()}
   $('#figName').textContent=c.n;$('#figMeta').textContent=`${c.r} · ${lvl[c.s]}${c.s?' stress':''} · p. ${c.p}`;
   $('#figMeaning').innerHTML=`<b>What it can mean:</b> ${esc(c.m)}`;
   const pos=figList.indexOf(i);$('#figPrev').disabled=pos<=0;$('#figNext').disabled=pos<0||pos>=figList.length-1;
@@ -170,7 +176,10 @@ function openFig(i){
    .catch(err=>{console.warn(err);figLoading=null;const l=$('#figLoad');if(l)l.textContent='Couldn’t load the 3D figure. Check your connection and try again.'});
 }
 function stepFig(d){const pos=figList.indexOf(figIdx)+d;if(pos>=0&&pos<figList.length)openFig(figList[pos])}
-function closeFig(fromPop){const el=$('#fig');if(!el||!el.classList.contains('open'))return;el.classList.remove('open');document.body.classList.remove('fig-open');figCtl&&figCtl.stop();if(!fromPop&&history.state&&history.state.fig)history.back()}
+let figHide=0;
+function closeFig(fromPop){const el=$('#fig');if(!el||!el.classList.contains('open'))return;el.classList.remove('shown');document.body.classList.remove('fig-open');
+  const ms=matchMedia('(prefers-reduced-motion: reduce)').matches?0:380;figHide=setTimeout(()=>{el.classList.remove('open');figCtl&&figCtl.stop()},ms);
+  if(!fromPop&&history.state&&history.state.fig)history.back()}
 $('#cueSearch').oninput=renderCues;
 
 /* ---------- talk ---------- */

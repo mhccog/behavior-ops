@@ -7,7 +7,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const D = Math.PI / 180;
 const V = () => new THREE.Vector3();
 const COL = { skin: 0xd9a080, shirt: 0x5d6fd6, trousers: 0x2b3146, shoe: 0x171a22, hair: 0x2a1f1a, lip: 0xa8574f,
-  iris: 0x4a6f8f, chair: 0x3a3f52, ghost: 0x8fa3c7, hl: 0xffc35a, jacket: 0x2c303d };
+  iris: 0x4a6f8f, chair: 0x3a3f52, ghost: 0x7d8aa6, hl: 0xffc35a, jacket: 0x2c303d };
 const UA = 0.28, FA = 0.25;
 
 // ---------- face / scalar parameter defaults ----------
@@ -339,25 +339,25 @@ export function mount(stage, hooks = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: !!hooks.capture });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
   stage.appendChild(renderer.domElement);
-  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0f1220); scene.fog = new THREE.Fog(0x0f1220, 6, 14);
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0xeceef2); scene.fog = new THREE.Fog(0xeceef2, 6, 15);
   const camera = new THREE.PerspectiveCamera(32, 1, 0.02, 50);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.dampingFactor = 0.08; controls.minDistance = 0.25; controls.maxDistance = 7; controls.enablePan = false;
   controls.maxPolarAngle = Math.PI * 0.62;
-  scene.add(new THREE.HemisphereLight(0xd7defa, 0x1c1f2c, 1.15));
-  const key = new THREE.DirectionalLight(0xfff4e8, 2.3); key.position.set(1.8, 3.6, 3.0); key.castShadow = true;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb9bfcc, 1.25));
+  const key = new THREE.DirectionalLight(0xfff6ee, 2.1); key.position.set(1.8, 3.6, 3.0); key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -2, right: 2, top: 2.6, bottom: -0.5, near: 0.5, far: 9 }); key.shadow.bias = -0.0004; scene.add(key);
-  const rim = new THREE.DirectionalLight(0xa58cff, 1.4); rim.position.set(-2.4, 2.4, -2.8); scene.add(rim);
+  const rim = new THREE.DirectionalLight(0xdfe8ff, 1.3); rim.position.set(-2.4, 2.4, -2.8); scene.add(rim);
   const fill = new THREE.DirectionalLight(0x9fb8ff, 0.45); fill.position.set(-2.5, 1.2, 2); scene.add(fill);
   // floor with soft radial fade
   const fc = document.createElement('canvas'); fc.width = fc.height = 256; const g2 = fc.getContext('2d');
-  const gr = g2.createRadialGradient(128, 128, 10, 128, 128, 128); gr.addColorStop(0, '#232946'); gr.addColorStop(0.55, '#151a2b'); gr.addColorStop(1, '#0f1220');
+  const gr = g2.createRadialGradient(128, 128, 10, 128, 128, 128); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.55, '#f1f2f5'); gr.addColorStop(1, '#eceef2');
   g2.fillStyle = gr; g2.fillRect(0, 0, 256, 256);
   const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 48), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(fc), roughness: 0.95 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.565, 64), new THREE.MeshBasicMaterial({ color: 0x3a4470, transparent: true, opacity: 0.6 }));
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.55, 0.565, 64), new THREE.MeshBasicMaterial({ color: 0xc5ccda, transparent: true, opacity: 0.8 }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.002; scene.add(ring);
 
   const fig = new Figure(); scene.add(fig.root);
