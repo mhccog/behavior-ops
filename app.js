@@ -123,24 +123,37 @@ function renderCues(){
   const q=$('#cueSearch').value.toLowerCase().trim();
   const list=BO.cues.filter(c=>(region==='All'||c.r===region)&&(!q||(c.n+' '+c.m+' '+c.r).toLowerCase().includes(q)));
   $('#cueList').innerHTML=`<div class="legend">${lvl.map((l,i)=>`<span><i class="dot s${i}"></i>${l}${i?' stress':''}</span>`).join('')}</div>`+
-   (list.map(c=>`<div class="cue"><i class="dot s${c.s}"></i><div><b>${esc(c.n)}</b><div class="m">${esc(c.m)}</div><div class="ref">${esc(c.r)} · ${lvl[c.s]}${c.s?' stress':''}${c.drs?` · rated ${c.drs}/4 on the book's deception scale`:''} · p. ${esc(c.p)}</div>${has3d(c)?`<button class="show3d" data-fig="${BO.cues.indexOf(c)}">▶ Show me in 3D</button>`:''}</div></div>`).join('')||'<div class="empty">No cues match.</div>');
-  figList=list.filter(has3d).map(c=>BO.cues.indexOf(c));
-  $$('[data-fig]').forEach(b=>b.onclick=()=>openFig(+b.dataset.fig));
+   (list.map(c=>`<div class="cue"><i class="dot s${c.s}"></i><div><b>${esc(c.n)}</b><div class="m">${esc(c.m)}</div><div class="ref">${esc(c.r)} · ${lvl[c.s]}${c.s?' stress':''}${c.drs?` · rated ${c.drs}/4 on the book's deception scale`:''} · p. ${esc(c.p)}</div>${cueActs(c)}</div></div>`).join('')||'<div class="empty">No cues match.</div>');
+  figList=list.filter(c=>has3d(c)||hasPhoto(c)).map(c=>BO.cues.indexOf(c));
+  $$('[data-fig]').forEach(b=>b.onclick=()=>openFig(+b.dataset.fig,'3d'));
+  $$('[data-photo]').forEach(b=>b.onclick=()=>openFig(+b.dataset.photo,'photo'));
 }
 
 /* ---------- 3D "Show me" figure (three.js + figure code load only when first opened) ---------- */
 const F3=window.BO3D;
 function has3d(c){return !!(F3&&F3.cues[F3.key(c.n)])}
+const PH=window.BO_PHOTOS||{};
+function photosOf(c){return F3?PH[F3.key(c.n)]||[]:[]}
+function hasPhoto(c){return photosOf(c).length>0}
+function credit(p,long){return `Photo: ${p.byUrl?`<a href="${esc(p.byUrl)}" target="_blank" rel="noopener">${esc(p.by)}</a>`:esc(p.by)} · ${p.licUrl?`<a href="${esc(p.licUrl)}" target="_blank" rel="noopener">${esc(p.lic)}</a>`:esc(p.lic)}${long?` · <a href="${esc(p.src)}" target="_blank" rel="noopener">source</a>`:''}`}
+function cueActs(c){
+  const i=BO.cues.indexOf(c),ph=photosOf(c),b3=has3d(c);
+  if(!b3&&!ph.length)return '';
+  const p=ph[0];
+  return `<div class="cue-acts">${b3?`<button class="show3d" data-fig="${i}">▶ Show me in 3D</button>`:''}${ph.length?`<button class="show3d alt" data-photo="${i}">Real example${ph.length>1?` (${ph.length})`:''}</button>`:''}</div>`+
+   (p?`<figure class="cue-photo"><button data-photo="${i}" aria-label="Open the real example photo"><img src="${esc(p.f)}" alt="${esc(p.cap)}" width="${p.w}" height="${p.h}" loading="lazy" decoding="async"></button><figcaption>${credit(p)}</figcaption></figure>`:'');
+}
 let figList=[],figIdx=-1,figCtl=null,figLoading=null;
 function figShell(){
   let el=$('#fig');if(el)return el;
-  el=document.createElement('div');el.id='fig';el.className='fig';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','3D cue demo');
+  el=document.createElement('div');el.id='fig';el.className='fig';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Cue demo');
   el.innerHTML=`<div class="fig-panel"><div class="fig-grab" aria-hidden="true"></div>
    <div class="fig-top"><button class="icon-btn" id="figPrev" aria-label="Previous cue">‹</button><div class="fig-title"><b id="figName"></b><small id="figMeta"></small></div><button class="icon-btn" id="figNext" aria-label="Next cue">›</button><button class="icon-btn" id="figClose" aria-label="Close">✕</button></div>
-   <div class="fig-stage" id="figStage"><div class="fig-load" id="figLoad">Loading 3D figure…</div><div class="fig-phase" id="figPhase">Baseline</div><div class="fig-hint">Drag to turn · pinch or scroll to zoom</div></div>
+   <div class="fig-seg" id="figSeg" role="tablist" aria-label="View"><button role="tab" data-mode="3d">3D</button><button role="tab" data-mode="photo">Photo</button><i aria-hidden="true"></i></div>
+   <div class="fig-stage" id="figStage"><div class="fig-photo" id="figPhoto" hidden><div class="ph-track" id="phTrack"></div><div class="ph-dots" id="phDots"></div></div><div class="fig-load" id="figLoad">Loading 3D figure…</div><div class="fig-phase" id="figPhase">Baseline</div><div class="fig-hint">Drag to turn · pinch or scroll to zoom</div></div>
    <div class="fig-bar"><i id="figProg"></i></div>
    <div class="fig-ctrl"><button id="figReplay">↺ Replay</button><button id="figPause">❚❚ Pause</button><button id="figSlow">½× speed</button><button id="figHl" class="on">✦ Highlight</button><button id="figView">Reset view</button></div>
-   <div class="fig-info"><div id="figMeaning"></div><div id="figNote" class="caveat"></div><p class="caveat">The figure starts at a neutral <b>baseline</b>, shows the cue, then returns. One cue is never proof: compare with their baseline, look for clusters of 3+, and consider context.</p></div></div>`;
+   <div class="fig-info"><div id="figMeaning"></div><div id="figNote" class="caveat"></div><p class="caveat" id="figCav3d">The figure starts at a neutral <b>baseline</b>, shows the cue, then returns. One cue is never proof: compare with their baseline, look for clusters of 3+, and consider context.</p><p class="caveat" id="figCavPh">The photo shows what the gesture looks like, not what this person was thinking or feeling. One cue is never proof: compare with someone's baseline, look for clusters of 3+, and consider context.</p></div></div>`;
   document.body.appendChild(el);
   $('#figClose').onclick=()=>closeFig();
   $('#figPrev').onclick=()=>stepFig(-1);$('#figNext').onclick=()=>stepFig(1);
@@ -149,6 +162,8 @@ function figShell(){
   $('#figSlow').onclick=e=>{if(!figCtl)return;const b=e.currentTarget,slow=!b.classList.contains('on');b.classList.toggle('on',slow);figCtl.setSpeed(slow?0.5:1)};
   $('#figHl').onclick=e=>{if(!figCtl)return;const b=e.currentTarget,on=!b.classList.contains('on');b.classList.toggle('on',on);figCtl.setHighlight(on)};
   $('#figView').onclick=()=>figCtl&&figCtl.resetView();
+  $$('#figSeg button').forEach(b=>b.onclick=()=>openFig(figIdx,b.dataset.mode));
+  const tr=$('#phTrack');tr.addEventListener('scroll',()=>{const k=Math.round(tr.scrollLeft/Math.max(1,tr.clientWidth));$$('#phDots i').forEach((d,j)=>d.classList.toggle('on',j===k));const c=$$('#phTrack figure')[k];if(c)$('#figNote').innerHTML=c.dataset.cred},{passive:true});
   document.addEventListener('keydown',e=>{if(!el.classList.contains('open'))return;if(e.key==='Escape')closeFig();else if(e.key==='ArrowRight')stepFig(1);else if(e.key==='ArrowLeft')stepFig(-1)});
   window.addEventListener('popstate',()=>{if(el.classList.contains('open'))closeFig(true)});
   el.addEventListener('click',e=>{if(e.target===el)closeFig()});
@@ -160,18 +175,37 @@ function figShell(){
   return el;
 }
 function webglOK(){try{const c=document.createElement('canvas');return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl')))}catch(e){return false}}
-function openFig(i){
+let figMode='3d';
+function openFig(i,mode){
   const el=figShell(),c=BO.cues[i];if(!c)return;
-  figIdx=i;
-  if(!el.classList.contains('open')){clearTimeout(figHide);el.classList.add('open');document.body.classList.add('fig-open');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('shown')));history.pushState({fig:1},'');figCtl&&figCtl.start()}
+  const b3=has3d(c),ph=photosOf(c);
+  mode=mode||figMode;if(mode==='3d'&&!b3)mode='photo';if(mode==='photo'&&!ph.length)mode='3d';figMode=mode;
+  const same=figIdx===i;figIdx=i;
+  if(!el.classList.contains('open')){clearTimeout(figHide);el.classList.add('open');document.body.classList.add('fig-open');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('shown')));history.pushState({fig:1},'')}
   $('#figName').textContent=c.n;$('#figMeta').textContent=`${c.r} · ${lvl[c.s]}${c.s?' stress':''} · p. ${c.p}`;
   $('#figMeaning').innerHTML=`<b>What it can mean:</b> ${esc(c.m)}`;
   const pos=figList.indexOf(i);$('#figPrev').disabled=pos<=0;$('#figNext').disabled=pos<0||pos>=figList.length-1;
+  const seg=$('#figSeg');seg.hidden=!(b3&&ph.length);seg.dataset.mode=mode;
+  $$('#figSeg button').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  el.classList.toggle('photo-mode',mode==='photo');
+  const pane=$('#figPhoto');pane.hidden=mode!=='photo';
+  $('#figCav3d').hidden=mode!=='3d';$('#figCavPh').hidden=mode!=='photo';
+  if(mode==='photo'){
+    figCtl&&figCtl.stop();
+    if(!same||pane.dataset.cue!==String(i)){pane.dataset.cue=i;
+      $('#phTrack').innerHTML=ph.map((p,k)=>`<figure data-cred="${esc(credit(p,true))}"><img src="${esc(p.f)}" alt="${esc(p.cap)}" width="${p.w}" height="${p.h}" decoding="async" ${k?'loading="lazy"':''}><figcaption>${esc(p.cap)}</figcaption></figure>`).join('');
+      $('#phTrack').scrollLeft=0;
+      $('#phDots').innerHTML=ph.length>1?ph.map((_,k)=>`<i class="${k?'':'on'}"></i>`).join(''):'';}
+    $('#figNote').innerHTML=credit(ph[0],true);$('#figNote').dataset.v='';
+    return;
+  }
+  $('#figNote').innerHTML='';$('#figNote').dataset.v='';
+  figCtl&&figCtl.start();
   const spec=F3.cues[F3.key(c.n)];
-  if(!webglOK()){$('#figLoad').textContent='Sorry, this browser can’t show 3D graphics.';return}
-  if(!figLoading)figLoading=import('./figure/viewer.js').then(m=>m.mount($('#figStage'),{onTick:s=>{const ph=$('#figPhase');ph.textContent=s.label;ph.classList.toggle('cue',s.cue);$('#figProg').style.width=(100*s.t/s.total).toFixed(1)+'%';const n=$('#figNote');if(n.dataset.v!==(s.note||'')){n.dataset.v=s.note||'';n.textContent=s.note||''}}})).then(ctl=>{
-    figCtl=ctl;$('#figLoad').remove();return figCtl});
-  figLoading.then(ctl=>{if(figIdx!==i)return;ctl.play(spec);$('#figPause').textContent='❚❚ Pause';ctl.setHighlight($('#figHl').classList.contains('on'));ctl.setSpeed($('#figSlow').classList.contains('on')?0.5:1)})
+  if(!webglOK()){const l=$('#figLoad');if(l)l.textContent='Sorry, this browser can’t show 3D graphics.';return}
+  if(!figLoading)figLoading=import('./figure/viewer.js').then(m=>m.mount($('#figStage'),{onTick:s=>{const ph=$('#figPhase');ph.textContent=s.label;ph.classList.toggle('cue',s.cue);$('#figProg').style.width=(100*s.t/s.total).toFixed(1)+'%';const n=$('#figNote');if(figMode==='3d'&&n.dataset.v!==(s.note||'')){n.dataset.v=s.note||'';n.textContent=s.note||''}}})).then(ctl=>{
+    figCtl=ctl;const l=$('#figLoad');if(l)l.remove();return figCtl});
+  figLoading.then(ctl=>{if(figIdx!==i||figMode!=='3d')return;ctl.start();ctl.play(spec);$('#figPause').textContent='❚❚ Pause';ctl.setHighlight($('#figHl').classList.contains('on'));ctl.setSpeed($('#figSlow').classList.contains('on')?0.5:1)})
    .catch(err=>{console.warn(err);figLoading=null;const l=$('#figLoad');if(l)l.textContent='Couldn’t load the 3D figure. Check your connection and try again.'});
 }
 function stepFig(d){const pos=figList.indexOf(figIdx)+d;if(pos>=0&&pos<figList.length)openFig(figList[pos])}

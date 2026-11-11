@@ -151,3 +151,35 @@ button:active,label.ghost:active,.chip:active,.group summary:active,.acc summary
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   button:active,.chip:active{transform:none}
 }
+
+/* ---------- real-example photos ---------- */
+.cue-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cue-acts .show3d{margin-top:0}
+.cue .show3d.alt{background:var(--fill);color:var(--text)}
+.cue-photo{margin:10px 0 0;max-width:260px}
+.cue-photo button{display:block;padding:0;border:0;background:var(--fill);border-radius:14px;overflow:hidden;width:100%;aspect-ratio:4/3;transition:transform .15s var(--ease),box-shadow .2s var(--ease)}
+.cue-photo button:active{transform:scale(.97)}
+.cue-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 22%}
+.cue-photo figcaption,.fig-info #figNote a{font-size:11.5px;color:var(--mute);margin-top:4px;line-height:1.35}
+.cue-photo figcaption a,.fig-info #figNote a{color:var(--mute);text-decoration:underline;text-underline-offset:2px}
+.fig-seg{position:relative;display:grid;grid-template-columns:1fr 1fr;align-self:center;width:min(240px,60%);margin:0 auto 10px;padding:3px;background:var(--fill);border-radius:10px}
+.fig-seg[hidden]{display:none}
+.fig-seg button{position:relative;z-index:1;border:0;background:transparent;color:var(--text);font-size:13.5px;font-weight:600;padding:6px 0;border-radius:8px;transition:color .2s var(--ease),transform .15s var(--ease)}
+.fig-seg button:active{transform:scale(.97)}
+.fig-seg i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);background:var(--card);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 1px 1px rgba(0,0,0,.04);transition:transform .3s var(--spring)}
+.fig-seg[data-mode="photo"] i{transform:translateX(100%)}
+.fig-photo{position:absolute;inset:0;z-index:3;background:#eceef2;touch-action:pan-x pan-y}
+.fig-photo[hidden]{display:none}
+.ph-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.ph-track::-webkit-scrollbar{display:none}
+.ph-track figure{flex:0 0 100%;height:100%;margin:0;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 14px 30px}
+.ph-track img{flex:none;display:block;width:auto;height:auto;max-width:100%;max-height:calc(100% - 30px);border-radius:12px;box-shadow:var(--sh)}
+.ph-track figcaption{flex:none;margin-top:8px;font-size:13px;font-weight:600;color:var(--text);text-align:center}
+.ph-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.ph-dots i{width:7px;height:7px;border-radius:50%;background:#c7c7cc;transition:background .2s var(--ease),transform .2s var(--spring)}
+.ph-dots i.on{background:var(--text);transform:scale(1.15)}
+.fig.photo-mode .fig-bar,.fig.photo-mode .fig-ctrl,.fig.photo-mode .fig-phase,.fig.photo-mode .fig-hint{visibility:hidden}
+.fig.photo-mode .fig-ctrl{height:0;padding:0;overflow:hidden}
+.fig.photo-mode .fig-stage canvas{visibility:hidden}
+.fig.photo-mode .fig-load{display:none}
+@media (hover:hover){.cue .show3d.alt:hover{background:#e2e2e7}.cue-photo button:hover{box-shadow:var(--sh2)}}
