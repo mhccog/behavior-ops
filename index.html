@@ -71,6 +71,17 @@
     </form>
   </section>
 
+  <!-- WATCH -->
+  <section id="tab-watch" class="tab">
+    <h2 class="sec">Watch</h2>
+    <p class="caveat">Real-life examples of behaviour profiling, played from YouTube. Each cue moment links to the matching Body cue and Ask entry. <b>Cues are indicators, not proof.</b> Analysts are reading stress and behaviour, not handing down a verdict. Courts and investigators decide facts.</p>
+    <div class="wseg" id="watchSeg" role="tablist"><i></i><button data-g="hughes" role="tab">Chase Hughes</button><button data-g="others" role="tab">Other analysts</button></div>
+    <p class="caveat wnote" id="watchNote"></p>
+    <div class="regions" id="watchConcepts"></div>
+    <div class="wfilter"><select id="watchCue" aria-label="Filter by cue"><option value="">Any cue</option></select><span id="watchCount" class="caveat"></span></div>
+    <div id="watchList"></div>
+  </section>
+
   <!-- PEOPLE -->
   <section id="tab-people" class="tab">
     <div class="row-between"><h2 class="sec">People</h2><button class="ghost" id="newProfile">+ New</button></div>
@@ -97,6 +108,7 @@
   <button data-tab="cues"><span>👁</span>Body</button>
   <button data-tab="talk"><span>💬</span>Talk</button>
   <button data-tab="ask"><span>✦</span>Ask</button>
+  <button data-tab="watch"><span>▶︎</span>Watch</button>
   <button data-tab="people"><span>👥</span>People</button>
 </nav>
 
@@ -107,5 +119,6 @@
 <script src="photos/photos.js"></script>
 <script src="app.js"></script>
 <script src="ask/ui.js"></script>
+<script src="watch/ui.js"></script>
 </body>
 </html>

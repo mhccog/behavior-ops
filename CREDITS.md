@@ -153,3 +153,6 @@ All frameworks belong to Chase Hughes, *The Behavior Ops Manual* (2023). This si
 
 ## Ask tab sources
 All Ask entries summarise Chase Hughes' own work in our own words: *The Behavior Ops Manual* (page refs), [NCI University](https://nci.university/), [The Behavior Panel](https://www.thebehaviorpanel.com/), his YouTube channel [@chasehughesofficial](https://www.youtube.com/@chasehughesofficial), and his *Diary of a CEO* appearances ([2024](https://www.youtube.com/watch?v=RvjR9GM2kX8), [2026](https://www.youtube.com/watch?v=9uSXOr-AdAU)). Every entry links its source.
+
+## Watch tab videos
+All videos are embedded from YouTube and belong to their creators: [The Behavior Panel](https://www.youtube.com/@TheBehaviorPanel), [Chase Hughes](https://www.youtube.com/@chasehughesofficial), [WIRED](https://www.youtube.com/@WIRED), The Nerve with Maureen Callahan, Mark Bowden and Scott Rouse. Nothing is downloaded or re-hosted. The summaries and cue-moment notes are written in our own words.

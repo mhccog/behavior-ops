@@ -234,6 +234,6 @@ $('#infoBtn').onclick=()=>dialog(`<h3 style="margin-top:0">About this guide</h3>
 <p class="caveat">Your saved people stay in this browser only. Nothing is sent anywhere.</p>`);
 
 renderGroups();renderCard();renderRegions();renderCues();renderTalk();renderPeople();
-const h=location.hash.slice(1);if(['profile','cues','talk','ask','people'].includes(h))show(h);
+const h=location.hash.slice(1);if(['profile','cues','talk','ask','watch','people'].includes(h))show(h);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
