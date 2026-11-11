@@ -150,3 +150,6 @@ The same details are stored in `photos/photos.js` and shown under each photo on 
 
 ## Content
 All frameworks belong to Chase Hughes, *The Behavior Ops Manual* (2023). This site paraphrases them with page references and reproduces no book text.
+
+## Ask tab sources
+All Ask entries summarise Chase Hughes' own work in our own words: *The Behavior Ops Manual* (page refs), [NCI University](https://nci.university/), [The Behavior Panel](https://www.thebehaviorpanel.com/), his YouTube channel [@chasehughesofficial](https://www.youtube.com/@chasehughesofficial), and his *Diary of a CEO* appearances ([2024](https://www.youtube.com/watch?v=RvjR9GM2kX8), [2026](https://www.youtube.com/watch?v=9uSXOr-AdAU)). Every entry links its source.

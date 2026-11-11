@@ -57,6 +57,20 @@
     <div id="animalList"></div>
   </section>
 
+  <!-- ASK -->
+  <section id="tab-ask" class="tab">
+    <div class="ask-head">
+      <div><h2 class="sec">Ask</h2><p class="caveat">Answers come only from Chase Hughes’ work: <i>The Behavior Ops Manual</i> plus his own videos and site. Written in my own words, with page refs and links. Runs on your device, with no AI service.</p></div>
+      <div class="ask-tools"><button class="ghost" id="askGloss">Glossary</button><button class="ghost" id="askClear">Clear</button></div>
+    </div>
+    <div id="askLog" class="chat" aria-live="polite"></div>
+    <form id="askBar" class="askbar" autocomplete="off">
+      <button type="button" id="askMic" class="mic" aria-label="Ask by voice" title="Ask by voice">🎙</button>
+      <input id="askInput" type="text" placeholder="Ask about a cue, term or situation…" enterkeyhint="send" aria-label="Your question">
+      <button type="submit" class="send" aria-label="Send">↑</button>
+    </form>
+  </section>
+
   <!-- PEOPLE -->
   <section id="tab-people" class="tab">
     <div class="row-between"><h2 class="sec">People</h2><button class="ghost" id="newProfile">+ New</button></div>
@@ -82,6 +96,7 @@
   <button data-tab="profile" class="active"><span>◎</span>Profile</button>
   <button data-tab="cues"><span>👁</span>Body</button>
   <button data-tab="talk"><span>💬</span>Talk</button>
+  <button data-tab="ask"><span>✦</span>Ask</button>
   <button data-tab="people"><span>👥</span>People</button>
 </nav>
 
@@ -91,5 +106,6 @@
 <script src="figure/cues3d.js"></script>
 <script src="photos/photos.js"></script>
 <script src="app.js"></script>
+<script src="ask/ui.js"></script>
 </body>
 </html>
