@@ -282,3 +282,6 @@ a.pill.web{background:var(--acc-t);color:var(--acc-ink)}a.pill.web:hover{backgro
 .vext{display:inline-block;margin-top:8px;font-size:13.5px;color:var(--acc-ink);text-decoration:none;font-weight:500}
 @media (min-width:900px){#watchList{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;align-items:start}}
 @media (prefers-reduced-motion:reduce){.wseg i,.vplay,.vframe img{transition:none}}
+
+.offline-bar{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(29,29,31,.88);color:#fff;font-size:13px;padding:8px 14px;border-radius:999px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:opacity .3s,transform .3s;z-index:60;white-space:nowrap}
+.offline-bar.on{opacity:1;transform:translate(-50%,0)}

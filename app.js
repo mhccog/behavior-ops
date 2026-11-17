@@ -236,4 +236,6 @@ $('#infoBtn').onclick=()=>dialog(`<h3 style="margin-top:0">About this guide</h3>
 renderGroups();renderCard();renderRegions();renderCues();renderTalk();renderPeople();
 const h=location.hash.slice(1);if(['profile','cues','talk','ask','watch','people'].includes(h))show(h);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+const offBar=document.createElement('div');offBar.className='offline-bar';offBar.textContent='You\u2019re offline. Everything works except playing Watch videos.';document.body.appendChild(offBar);
+const setOff=()=>offBar.classList.toggle('on',!navigator.onLine);addEventListener('online',setOff);addEventListener('offline',setOff);setOff();
 })();

@@ -10,7 +10,7 @@
 - **Animation**: a small invisible skeleton in `figure/viewer.js` is posed from hand-written keyframes in `figure/cues3d.js`
   (our own summaries of the cues). `figure/person.js` copies that skeleton onto the Rocketbox bones and drives its face shape keys.
   The chair, door, phone, pen, cup, watch and wallet are simple shapes made in code for this site.
-- **three.js** (r170) renders the scene. It is © three.js authors under the [MIT licence](https://github.com/mrdoob/three.js/blob/dev/LICENSE)
+- **three.js** (r170) renders the scene. It is © three.js authors under the [MIT licence](https://github.com/mrdoob/three.js/blob/dev/LICENSE) A copy of the files it needs is kept in `vendor/three/` (with its LICENSE) so the site works offline.
   and is loaded from the jsDelivr CDN only when a figure is opened. OrbitControls, GLTFLoader, SkeletonUtils and the meshopt decoder come from the same package.
 - The 3D figure is not a real person. Real people appear only in the openly licensed photos listed below.
 
